@@ -1,21 +1,40 @@
 ﻿using System;
-using System.Text.RegularExpressions;
-using System.IO;
-using System.IO.Stream;
 using System.Collections.Generic;
-using System.Net.Http;
+
 
 namespace Advent2017
 {
-    public class Day1 : IDay
+    public class Day1 : BaseDay
     {
-        public void Run()
+        public override void Run()
         {
-            steam inputString = null;
-            using (var client = new HttpClient()) {
-                inputString = client.GetStreamAsync("adventofcode.com/2017/day/1/input");
-            }
+            var day1Input = GetDayInput(1).Result;
 
+            int inputTotal = 0;
+
+            foreach (string inputLine in day1Input)
+            {
+                int lineSum = 0;
+                var charArray = inputLine.ToCharArray();
+                for(int index = 1; index < charArray.Length; index++)
+                {
+                    if (charArray[index] == charArray[index - 1])
+                    {
+                        lineSum = lineSum + charArray[index];
+                    }
+
+                    if (index+1 == charArray.Length)
+                    {
+                        if (charArray[index] == charArray[0])
+                        {
+                            lineSum = lineSum + charArray[index];
+                        }
+                    }
+                }
+                Console.WriteLine("Line total: {0}",lineSum);
+                inputTotal = inputTotal + lineSum;
+            }
+            Console.WriteLine("Input total: {0}", inputTotal);
         }
     }
 }
