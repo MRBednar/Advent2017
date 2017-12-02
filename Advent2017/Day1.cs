@@ -8,7 +8,7 @@ namespace Advent2017
     {
         public override void Run()
         {
-            var day1Input = GetDayInput(1).Result;
+            var day1Input = GetDayInput(1);
 
             int inputTotal = 0;
 
@@ -16,18 +16,19 @@ namespace Advent2017
             {
                 int lineSum = 0;
                 var charArray = inputLine.ToCharArray();
-                for(int index = 1; index < charArray.Length; index++)
+                for (int index = 1; index < charArray.Length; index++)
                 {
+
                     if (charArray[index] == charArray[index - 1])
                     {
-                        lineSum = lineSum + charArray[index];
+                        lineSum = lineSum + int.Parse(charArray[index].ToString());
                     }
 
                     if (index+1 == charArray.Length)
                     {
                         if (charArray[index] == charArray[0])
                         {
-                            lineSum = lineSum + charArray[index];
+                            lineSum = lineSum + int.Parse(charArray[index].ToString());
                         }
                     }
                 }

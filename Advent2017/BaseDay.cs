@@ -11,18 +11,17 @@ namespace Advent2017
         public abstract void Run();
         
 
-        public async Task<List<string>> GetDayInput(int day)
+        public List<string> GetDayInput(int day)
         {
             List<string> results = new List<string>();
-            using (var client = new HttpClient())
+            using (StreamReader sr = new StreamReader(String.Format("inputs/day{0}.txt", day)))
             {
-                var inputString = await client.GetStreamAsync(String.Format("http://adventofcode.com/2017/day/{0}/input", day));
-                using (StreamReader reader = new StreamReader(inputString))
+                while (sr.Peek() >= 0)
                 {
-                    results.Add(reader.ReadLine());
+                    results.Add(sr.ReadLine());
                 }
-                return results;
             }
+            return results;
         }
 
     }
