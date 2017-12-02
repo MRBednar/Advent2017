@@ -24,7 +24,7 @@ namespace Advent2017
         public static Dictionary<int, IDay>
             dayArgument = new Dictionary<int, IDay>
             {
-
+                {1, new Day1() },
             };
     }
 }
