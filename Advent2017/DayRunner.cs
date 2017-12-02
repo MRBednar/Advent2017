@@ -25,6 +25,7 @@ namespace Advent2017
             dayArgument = new Dictionary<int, IDay>
             {
                 {1, new Day1() },
+                {2, new Day2() },
             };
     }
 }
