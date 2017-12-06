@@ -7,33 +7,55 @@ namespace Advent2017
     {
         public override void Run()
         {
+            //Y-Cord is [0], X-Cord is [1]
+            double[] position = { 0, 0 };
             var day3Input = GetDayInput(3);
             double dataGoal = Double.Parse(day3Input[0]);
-            double test = 23;
-            double squareSide = Math.Ceiling(Math.Sqrt(test));
+            if (dataGoal == 1)
+            {
+                Console.WriteLine("Input is 1, so dist = 0");
+            }
+            double squareSide = Math.Ceiling(Math.Sqrt(dataGoal));
             if (squareSide % 2 == 0)
             {
-                squareSide = squareSide + 1;
-                
+                squareSide++;
             }
-            double sidePos = test - Math.Pow((squareSide - 2), 2);
             double shortestTaxi = (squareSide - 1) / 2;
-            while (sidePos - squareSide > 0)
+            position[0] = (shortestTaxi - 1) * -1;
+            position[1] = shortestTaxi;
+            double startNumber = Math.Pow(squareSide - 2, 2) + 1;
+
+            double c = startNumber;
+            while (c <= dataGoal)
             {
-                sidePos = sidePos - squareSide;
+                for (double u = 1; u < squareSide - 1 && c < dataGoal; u++)
+                {
+                    position[0]++;
+                    c++;
+                }
+
+                for (double l = 0; l < squareSide - 1 && c < dataGoal; l++)
+                {
+                    position[1]--;
+                    c++;
+                }
+
+                for (double d = 0; d < squareSide - 1 && c < dataGoal; d++)
+                {
+                    position[0]--;
+                    c++;
+                }
+
+                for (double r = 0; r < squareSide - 1 && c < dataGoal; r++)
+                {
+                    position[1]++;
+                    c++;
+                }
+                c++;
             }
-            double test2 = 0;
-            if (sidePos > ((squareSide)/2)) {
-                test2 = Math.Ceiling(sidePos % ((squareSide)/2));
-                Console.WriteLine("Dist = {0}", (test2+shortestTaxi));
-            } else if (sidePos < ((squareSide)/2))
-            {
-                test2 = Math.Ceiling(((squareSide)/2) % sidePos);
-                Console.WriteLine("Dist = {0}", (test2 + shortestTaxi));
-            } else
-            {
-                Console.WriteLine("Max dist = {0}", shortestTaxi);
-            }
+
+            var dist = Math.Abs(position[0]) + Math.Abs(position[1]);
+            Console.WriteLine("Distince to start node: {0}", dist);
         }
     }
 }
