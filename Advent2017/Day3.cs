@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 
 namespace Advent2017
 {
@@ -7,6 +7,7 @@ namespace Advent2017
     {
         public override void Run()
         {
+            var pos = new List<Coord>();
             //Y-Cord is [0], X-Cord is [1]
             double[] position = { 0, 0 };
             var day3Input = GetDayInput(3);
@@ -57,5 +58,12 @@ namespace Advent2017
             var dist = Math.Abs(position[0]) + Math.Abs(position[1]);
             Console.WriteLine("Distince to start node: {0}", dist);
         }
+    }
+
+    public class Coord
+    {
+        public int XCord { get; set; }
+        public int YCord { get; set; }
+        public double value { get; set; }
     }
 }
