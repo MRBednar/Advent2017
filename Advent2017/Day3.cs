@@ -5,11 +5,14 @@ namespace Advent2017
 {
     public class Day3 : BaseDay
     {
+        List<List<double>> doubleCords;
+        int[,] position;
+
         public override void Run()
         {
             //Y-Cord is [0], X-Cord is [1]
-            int[] position = { 0, 0 };
             var day3Input = GetDayInput(3);
+            position = new int[,] { { 0, 0 }, { 0, 0 } };
             double dataGoal = Double.Parse(day3Input[0]);
             if (dataGoal == 1)
             {
@@ -20,375 +23,230 @@ namespace Advent2017
             {
                 squareSide++;
             }
-            var doubleCords = Part2(dataGoal, squareSide);
+            BuildDoubleCords(dataGoal, squareSide);
             int shortestTaxi = Convert.ToInt32((squareSide - 1) / 2);
-            position[0] = (shortestTaxi - 1) * -1;
-            position[1] = shortestTaxi;
-            double startNumber = Math.Pow(squareSide - 2, 2) + 1;
-
-            double c = startNumber;
-            while (c <= dataGoal)
-            {
-                for (double u = 1; u < squareSide - 1 && c < dataGoal; u++)
-                {
-                    position[0]++;
-                    c++;
-                }
-
-                for (double l = 0; l < squareSide - 1 && c < dataGoal; l++)
-                {
-                    position[1]--;
-                    c++;
-                }
-
-                for (double d = 0; d < squareSide - 1 && c < dataGoal; d++)
-                {
-                    position[0]--;
-                    c++;
-                }
-
-                for (double r = 0; r < squareSide - 1 && c < dataGoal; r++)
-                {
-                    position[1]++;
-                    c++;
-                }
-                c++;
-            }
-
-            var dist = Math.Abs(position[0]) + Math.Abs(position[1]);
-            Console.WriteLine("Distince to start node: {0}", dist);
+            position[0,0] = 1;
+            position[0, 1] = 0;
 
             doubleCords[shortestTaxi][shortestTaxi] = 1;
             double starting;
             int xStart;
             int yStart;
-            for (double l = 3; l <= dataGoal; l+=2)
+            for (double l = 3; l <= squareSide; l += 2)
             {
                 starting = Math.Pow(l - 2, 2) + 1;
-                xStart = Convert.ToInt32((l - 1) / 2)+ shortestTaxi;
-                yStart = xStart - (Convert.ToInt32(l)-2);
-                if (l * l < dataGoal)
+                xStart = Convert.ToInt32((l - 1) / 2) + shortestTaxi;
+                yStart = xStart - (Convert.ToInt32(l) - 2);
+                if (l < squareSide)
                 {
-                    doubleCords = Navigate(starting, l * l, l, doubleCords, xStart, yStart, dataGoal);
-                } else
-                {
-                    doubleCords = Navigate(starting, dataGoal, l, doubleCords, xStart, yStart, dataGoal);
+                    Navigate(starting, l * l, l, xStart, yStart, dataGoal);
                 }
-                
+                else
+                {
+                    Navigate(starting, dataGoal, l, xStart, yStart, dataGoal);
+                }
+
             }
 
-            var test = doubleCords[(position[1] + shortestTaxi)][(position[0] + shortestTaxi)];
-            Console.WriteLine(test);
+            var dist = Math.Abs(position[0, 0]) + Math.Abs(position[0, 1]);
+            Console.WriteLine("Distince to start node: {0}", dist);
+
+             Console.WriteLine("First Square Value greater than input: {0}", doubleCords[(position[1, 0])][(position[1, 1])]);
         }
 
-        public List<List<double>> Navigate (double currentStep, double finalStep, double sideLength, List<List<double>> coord, int startX, int startY, double input)
+        public void Navigate (double currentStep, double finalStep, double sideLength, int startX, int startY, double input)
         {
             double currentStepValue = 0;
             while (currentStep <= finalStep)
             {
-                for (double u = 1; u < sideLength - 1 && currentStep < finalStep; u++)
+                if (startX < doubleCords.Count && startY < doubleCords.Count && startX >= 0 && startY >= 0 && doubleCords[startX][startY] == 0)
                 {
-                    if (coord[startX][startY] == 0)
+                    currentStepValue = valueCheck(startX, startY);
+
+                    doubleCords[startX][startY] += currentStepValue;
+
+                    if (currentStepValue > input && position[1,0] == 0 && position[1,1] == 0)
                     {
-                        if (startX - 1 > 0)
-                        {
-                            currentStepValue += coord[startX - 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX -1][startY + 1];
-                            }
-                        }
-
-                        if (startX + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX + 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
-                        }
-
-                        if (startY - 1 > 0)
-                        {
-                            currentStepValue += coord[startX][startY - 1];
-                        } 
-
-                        if (startY + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX][startY + 1];
-                        }
-
-                        coord[startX][startY] += currentStepValue;
-
-                        if (currentStepValue > input)
-                        {
-                            Console.WriteLine("Value over input: {0}", currentStepValue);
-                            Console.ReadKey();
-                            return coord;
-                        }
-
-                        currentStepValue = 0;
+                        position[1, 0] = startX;
+                        position[1, 1] = startY;
                     }
+
+                    currentStepValue = 0;
+                }
+
+                for (double u = 1; u < sideLength - 1 && currentStep < finalStep; u++)
+                {   
+                    if (doubleCords[startX][startY] == 0)
+                    {
+                        currentStepValue = valueCheck(startX, startY);
+
+                        doubleCords[startX][startY] += currentStepValue;
+
+                        if (currentStepValue > input && position[1, 0] == 0 && position[1, 1] == 0)
+                        {
+                            position[1, 0] = startX;
+                            position[1, 1] = startY;
+                        }
+                    }
+                    currentStepValue = 0;
+
                     startY++;
+                    if (currentStep < input)
+                    {
+                        position[0, 1]++;
+                    }
                     currentStep++;
                 }
 
                 for (double l = 0; l < sideLength - 1 && currentStep < finalStep; l++)
                 {
 
-                    if (coord[startX][startY] == 0)
+                    if (doubleCords[startX][startY] == 0)
                     {
-                        if (startX - 1 > 0)
+                        currentStepValue = valueCheck(startX, startY);
+
+                        doubleCords[startX][startY] += currentStepValue;
+
+                        if (currentStepValue > input && position[1, 0] == 0 && position[1, 1] == 0)
                         {
-                            currentStepValue += coord[startX - 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
+                            position[1, 0] = startX;
+                            position[1, 1] = startY;
                         }
-
-                        if (startX + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX + 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
-                        }
-
-                        if (startY - 1 > 0)
-                        {
-                            currentStepValue += coord[startX][startY - 1];
-                        }
-
-                        if (startY + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX][startY + 1];
-                        }
-
-                        coord[startX][startY] += currentStepValue;
-
-                        if (currentStepValue > input)
-                        {
-                            Console.WriteLine("Value over input: {0}", currentStepValue);
-                            Console.ReadKey();
-                            return coord;
-                        }
-
-                        currentStepValue = 0;
                     }
+                    currentStepValue = 0;
                     startX--;
+                    if (currentStep < input)
+                    {
+                        position[0, 0]--;
+                    }
                     currentStep++;
                 }
 
                 for (double d = 0; d < sideLength - 1 && currentStep < finalStep; d++)
                 {
 
-                    if (coord[startX][startY] == 0)
+                    if (doubleCords[startX][startY] == 0)
                     {
-                        if (startX - 1 > 0)
+                        currentStepValue = valueCheck(startX, startY);
+
+                        doubleCords[startX][startY] += currentStepValue;
+
+                        if (currentStepValue > input && position[1, 0] == 0 && position[1, 1] == 0)
                         {
-                            currentStepValue += coord[startX - 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
+                            position[1, 0] = startX;
+                            position[1, 1] = startY;
                         }
-
-                        if (startX + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX + 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
-                        }
-
-                        if (startY - 1 > 0)
-                        {
-                            currentStepValue += coord[startX][startY - 1];
-                        }
-
-                        if (startY + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX][startY + 1];
-                        }
-
-                        coord[startX][startY] += currentStepValue;
-
-                        if (currentStepValue > input)
-                        {
-                            Console.WriteLine("Value over input: {0}", currentStepValue);
-                            Console.ReadKey();
-                            return coord;
-                        }
-
-                        currentStepValue = 0;
                     }
+                    currentStepValue = 0;
                     startY--;
+                    if (currentStep < input)
+                    {
+                        position[0, 1]--;
+                    }
                     currentStep++;
                 }
 
                 for (double r = 0; r < sideLength - 1 && currentStep < finalStep; r++)
                 {
 
-                    if (coord[startX][startY] == 0)
+                    if (doubleCords[startX][startY] == 0)
                     {
-                        if (startX - 1 > 0)
+                        currentStepValue = valueCheck(startX, startY);
+
+                        doubleCords[startX][startY] += currentStepValue;
+
+                        if (currentStepValue > input && position[1, 0] == 0 && position[1, 1] == 0)
                         {
-                            currentStepValue += coord[startX - 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
+                            position[1, 0] = startX;
+                            position[1, 1] = startY;
                         }
-
-                        if (startX + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX + 1][startY];
-
-                            if (startY - 1 > 0)
-                            {
-                                currentStepValue += coord[startX - 1][startY - 1];
-                            }
-
-                            if (startY + 1 < coord.Count)
-                            {
-                                currentStepValue += coord[startX - 1][startY + 1];
-                            }
-                        }
-
-                        if (startY - 1 > 0)
-                        {
-                            currentStepValue += coord[startX][startY - 1];
-                        }
-
-                        if (startY + 1 < coord.Count)
-                        {
-                            currentStepValue += coord[startX][startY + 1];
-                        }
-
-                        coord[startX][startY] += currentStepValue;
-
-                        if (currentStepValue > input)
-                        {
-                            var test = coord[startX][startY];
-                            Console.WriteLine("Value over input: {0}  At: {1}, {2}", currentStepValue, startX, startY);
-                            Console.ReadKey();
-                            return coord;
-                        }
-
-                        currentStepValue = 0;
                     }
+                    currentStepValue = 0;
                     startX++;
+                    if (currentStep < input)
+                    {
+                        position[0, 0]++;
+                    }
                     currentStep++;
                 }
 
                 currentStep++;
             }
 
-            if (startX < coord.Count && startY < coord.Count && startX >= 0 && startY >= 0 && coord[startX][startY] == 0)
+            if (startX < doubleCords.Count && startY < doubleCords.Count && startX >= 0 && startY >= 0 && doubleCords[startX][startY] == 0)
             {
-                if (startX - 1 > 0)
+                currentStepValue = valueCheck(startX, startY);
+
+                doubleCords[startX][startY] += currentStepValue;
+
+                if (currentStepValue > input && position[1, 0] == 0 && position[1, 1] == 0)
                 {
-                    currentStepValue += coord[startX - 1][startY];
-
-                    if (startY - 1 > 0)
-                    {
-                        currentStepValue += coord[startX - 1][startY - 1];
-                    }
-
-                    if (startY + 1 < coord.Count)
-                    {
-                        currentStepValue += coord[startX - 1][startY + 1];
-                    }
-                }
-
-                if (startX + 1 < coord.Count)
-                {
-                    currentStepValue += coord[startX + 1][startY];
-
-                    if (startY - 1 > 0)
-                    {
-                        currentStepValue += coord[startX - 1][startY - 1];
-                    }
-
-                    if (startY + 1 < coord.Count)
-                    {
-                        currentStepValue += coord[startX - 1][startY + 1];
-                    }
-                }
-
-                if (startY - 1 > 0)
-                {
-                    currentStepValue += coord[startX][startY - 1];
-                }
-
-                if (startY + 1 < coord.Count)
-                {
-                    currentStepValue += coord[startX][startY + 1];
-                }
-
-                coord[startX][startY] += currentStepValue;
-
-                if (currentStepValue > input)
-                {
-                    Console.WriteLine("Value over input: {0}", currentStepValue);
-                    Console.ReadKey();
-                    return coord;
+                    position[1, 0] = startX;
+                    position[1, 1] = startY;
                 }
 
                 currentStepValue = 0;
             }
 
-            return coord;
+            if (currentStep < input)
+            {
+                position[0, 0]++;
+            }
+            currentStepValue = 0;
         }
 
-        public List<List<double>> Part2(double lastInt, double squareSide)
+        public double valueCheck(int xCord, int yCord)
         {
-            List<List<double>> cords = new List<List<double>>();
+            double currentStepValue = 0;
+            if (xCord - 1 > 0)
+            {
+                currentStepValue += doubleCords[xCord - 1][yCord];
+
+                if (yCord - 1 > 0)
+                {
+                    currentStepValue += doubleCords[xCord - 1][yCord - 1];
+                }
+
+                if (yCord + 1 < doubleCords.Count)
+                {
+                    currentStepValue += doubleCords[xCord - 1][yCord + 1];
+                }
+            }
+
+            if (xCord + 1 < doubleCords.Count)
+            {
+                currentStepValue += doubleCords[xCord + 1][yCord];
+
+                if (yCord - 1 > 0)
+                {
+                    currentStepValue += doubleCords[xCord + 1][yCord - 1];
+                }
+
+                if (yCord + 1 < doubleCords.Count)
+                {
+                    currentStepValue += doubleCords[xCord + 1][yCord + 1];
+                }
+            }
+
+            if (yCord - 1 > 0)
+            {
+                currentStepValue += doubleCords[xCord][yCord - 1];
+            }
+
+            if (yCord + 1 < doubleCords.Count)
+            {
+                currentStepValue += doubleCords[xCord][yCord + 1];
+            }
+
+            var finalStepValue = currentStepValue;
+
+            currentStepValue = 0;
+            return finalStepValue;
+        }
+
+        public void BuildDoubleCords(double lastInt, double squareSide)
+        {
+            doubleCords = new List<List<double>>();
             double range = (squareSide - 1) / 2;
             for (double r = range*-1; r <= range; r++)
             {
@@ -397,9 +255,8 @@ namespace Advent2017
                 {
                     yCords.Add(0);
                 }
-                cords.Add(yCords);
+                doubleCords.Add(yCords);
             }
-            return cords;
         }
     }
 }
